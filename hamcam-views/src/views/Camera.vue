@@ -1,5 +1,5 @@
 <template>
   <div>
-    <router-view/>
+    <h1>This is a camera page</h1>
   </div>
 </template>
