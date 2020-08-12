@@ -124,7 +124,7 @@ export default {
     getPhoto: function () {
       const photo = this.$refs.camera.getPhoto();
       console.log(photo);
-      return { photo: photo };
+      return photo;
     },
     getBatteryStatus: function () {
       const { isCharging, chargingTime, dischargingTime, level } = useBattery();

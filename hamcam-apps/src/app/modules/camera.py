@@ -18,8 +18,10 @@ class Camera():
 
     async def get_photo(self):
         res = await self._execute_rpc_task("getPhoto")
-        data_uri = res.get("photo")
-        return base64.b64decode(data_uri.split(",", 1)[1])
+        return {
+            "img": base64.b64decode(res["photo"].split(",", 1)[1]),
+            "datetime": res["datetime"]
+        }
 
     async def get_battery_status(self):
         return await self._execute_rpc_task("getBatteryStatus")
@@ -89,6 +91,8 @@ class Camera():
                 logging.error(traceback.format_exc())
 
     async def _execute_rpc_task(self, method, params=None):
+        if not self._ws_connected:
+            raise Exception("Camera Error: Not Connected")
         req_id = uuid.uuid4().hex
         queue = asyncio.Queue()
         self._waiting_tasks[req_id] = queue.put
