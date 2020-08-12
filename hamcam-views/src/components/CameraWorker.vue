@@ -60,7 +60,7 @@ export default {
       this.canvas
         .getContext("2d")
         .drawImage(this.video, 0, 0, this.width, this.height);
-      return this.canvas.toDataURL("image/png");
+      return this.canvas.toDataURL("image/jpeg");
     },
     onClickTakePhoto() {
       this.photo = this.getPhoto();

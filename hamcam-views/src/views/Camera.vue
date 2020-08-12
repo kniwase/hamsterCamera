@@ -1,17 +1,17 @@
 <template>
   <b-container fluid="sm">
     <b-row>
-      <CameraWorker ref="camera" />
+      <RpcWorker ref="rpc" />
     </b-row>
   </b-container>
 </template>
 
 
 <script>
-import { CameraWorker } from "../components";
+import { RpcWorker } from "../components";
 
 export default {
-  components: { CameraWorker },
+  components: { RpcWorker },
   data() {
     return new Object();
       },
