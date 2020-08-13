@@ -2,7 +2,7 @@
 FROM node:alpine as build-stage
 
 ARG PRODUCTION
-ENV HAMCAM_PRODUCTION $PRODUCTION
+ENV VUE_APP_PRODUCTION $PRODUCTION
 
 WORKDIR /app
 COPY ./hamcam-views/package*.json ./
@@ -12,9 +12,6 @@ RUN npm run build
 
 # nginxのセットアップ
 FROM nginx:alpine as production-stage
-
-ARG PRODUCTION
-ENV HAMCAM_PRODUCTION $PRODUCTION
 
 WORKDIR /app
 RUN apk --no-cache add tzdata

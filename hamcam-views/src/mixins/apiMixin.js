@@ -7,10 +7,15 @@ export default {
     } else {
       protocol = location.protocol;
     }
-    let port = "";
-    switch (process.env.HAMCAM_PRODUCTION) {
-      case "0": // Staging
-      case "1": // Production
+    let port;
+    switch (process.env.VUE_APP_PRODUCTION) {
+      case "1":
+        // Production
+        port = "";
+        break;
+      case "0":
+        // Staging
+        port = ":20334";
         break;
       default:
         // Development

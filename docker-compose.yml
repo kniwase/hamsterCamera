@@ -10,9 +10,7 @@ services:
       args:
         - PRODUCTION=1
     expose:
-      - "9080"
-    ports:
-      - "9080:9080"
+      - "80"
     environment:
       - TZ=Asia/Tokyo
     volumes:
@@ -28,8 +26,23 @@ services:
       args:
         - PRODUCTION=1
     expose:
-      - "8080"
-    ports:
-      - "8080:8080"
+      - "80"
     environment:
       - TZ=Asia/Tokyo
+  
+  hamcam_proxy:
+    container_name: "hamcam_proxy"
+    restart: always
+    build:
+      context: ./
+      dockerfile: "docker/nginx/Dockerfile"
+      args:
+        - PRODUCTION=1
+    expose:
+      - "20334"
+    ports:
+      - "20334:20334"
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - ./docker/nginx/production.conf:/app/conf
