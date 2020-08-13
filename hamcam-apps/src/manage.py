@@ -10,7 +10,7 @@ def runserver():
         uvicorn.run(app=api, host="0.0.0.0", port=9080)
     else:
         # 開発環境
-        certdir = SRC_DIR.parents[1] / "dev-env" / "cert"
+        certdir = SRC_DIR.parents[1] / "dev-env" / "cert" / "pem"
         uvicorn.run(app=api, host="0.0.0.0", port=9080,
                     ssl_keyfile=certdir / "key.pem",
                     ssl_certfile=certdir / "cert.pem")

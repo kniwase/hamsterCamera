@@ -9,8 +9,8 @@ switch (process.env.HAMCAM_PRODUCTION) {
   default:
     // Development
     https_setting = {
-      key: fs.readFileSync("../dev-env/cert/key.pem"),
-      cert: fs.readFileSync("../dev-env/cert/cert.pem"),
+      key: fs.readFileSync("../dev-env/cert/pem/key.pem"),
+      cert: fs.readFileSync("../dev-env/cert/pem/cert.pem"),
     };
 }
 

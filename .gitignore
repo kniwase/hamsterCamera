@@ -132,4 +132,4 @@ dmypy.json
 .pyre/
 
 # certifications for development
-dev-env/cert
+dev-env/cert/pem
