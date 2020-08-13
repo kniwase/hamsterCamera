@@ -21,12 +21,12 @@ export default {
     width: {
       type: String,
       require: false,
-      default: () => (process.env.VUE_APP_PRODUCTION === "1" ? "720" : "1280"),
+      default: () => "1280",
     },
     height: {
       type: String,
       require: false,
-      default: () => (process.env.VUE_APP_PRODUCTION === "1" ? "1280" : "720"),
+      default: () => "720",
     },
   },
   data() {
