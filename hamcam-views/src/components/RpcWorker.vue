@@ -6,11 +6,7 @@
       <button color="info" v-on:click="getConnection()">接続</button>
       <button color="info" v-on:click="closeConnection()">切断</button>
     </b-row>
-    <button color="info" v-on:click="getBatteryStatus()">バッテリー</button>
-
-    <b-row>
-      <CameraWorker ref="camera" />
-    </b-row>
+    <CameraWorker ref="camera" />
   </b-container>
 </template>
 

@@ -15,7 +15,7 @@ switch (process.env.HAMCAM_PRODUCTION) {
 }
 
 module.exports = {
-  publicPath: "/hamcam/views/",
+  publicPath: "/hamcam/",
   devServer: {
     disableHostCheck: true,
     host: "0.0.0.0",

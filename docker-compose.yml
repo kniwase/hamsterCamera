@@ -1,0 +1,35 @@
+version: "3"
+
+services:
+  hamcam_apps:
+    container_name: "hamcam_web"
+    restart: always
+    build:
+      context: ./
+      dockerfile: "docker/hamcam-apps/Dockerfile"
+      args:
+        - PRODUCTION=1
+    expose:
+      - "9080"
+    ports:
+      - "9080:9080"
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - ./hamcam-apps:/app
+    command: python /app/manage.py runserver
+  
+  hamcam_views:
+    container_name: "hamcam_views"
+    restart: always
+    build:
+      context: ./
+      dockerfile: "docker/hamcam-views/Dockerfile"
+      args:
+        - PRODUCTION=1
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=Asia/Tokyo

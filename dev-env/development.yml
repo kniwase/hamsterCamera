@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  hamcam_apps:
+    build:
+      args:
+        - PRODUCTION=0
+    volumes:
+      - ./dev-env/cert:/cert
+
+  hamcam_views:
+    build:
+      args:
+        - PRODUCTION=0
+    volumes:
+      - ./dev-env/cert:/cert
