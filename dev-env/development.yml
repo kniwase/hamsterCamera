@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  hamcam_apps:
+    build:
+      args:
+        - PRODUCTION=0
+
+  hamcam_views:
+    build:
+      args:
+        - PRODUCTION=0
+  
+  hamcam_proxy:
+    build:
+      args:
+        - PRODUCTION=0
+    volumes:
+      - ./dev-env/cert:/cert
+      - ./docker/nginx/staging.conf:/app/conf

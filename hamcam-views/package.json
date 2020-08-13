@@ -1,0 +1,36 @@
+{
+  "name": "hamcam-views",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@vue/composition-api": "^1.0.0-beta.9",
+    "bootstrap": "^4.5.2",
+    "bootstrap-vue": "^2.16.0",
+    "core-js": "^3.6.5",
+    "jquery": "^1.9.1",
+    "msgpack-lite": "^0.1.26",
+    "reconnecting-websocket": "^4.4.0",
+    "register-service-worker": "^1.7.1",
+    "vue": "^2.6.11",
+    "vue-router": "^3.2.0",
+    "vue-use-web": "^1.0.0",
+    "vuex": "^3.4.0",
+    "websocket": "^1.0.31"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.4.0",
+    "@vue/cli-plugin-eslint": "~4.4.0",
+    "@vue/cli-plugin-router": "~4.4.0",
+    "@vue/cli-plugin-vuex": "~4.4.0",
+    "@vue/cli-service": "~4.4.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.2.2",
+    "vue-template-compiler": "^2.6.11"
+  }
+}

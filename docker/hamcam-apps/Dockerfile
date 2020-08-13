@@ -1,0 +1,16 @@
+# Pythonの環境セットアップ
+FROM python:3.7-slim-buster
+
+ARG PRODUCTION
+ENV HAMCAM_PRODUCTION $PRODUCTION
+
+RUN mkdir /cert
+
+WORKDIR /work
+COPY ./docker/hamcam-apps/requirements.txt ./
+RUN pip3 install --no-cache-dir -r ./requirements.txt
+WORKDIR /app
+RUN apt-get -y autoremove && \
+    apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /work
