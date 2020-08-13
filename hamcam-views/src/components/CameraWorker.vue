@@ -21,19 +21,20 @@ export default {
     width: {
       type: String,
       require: false,
-      default: () => "1280",
+      default: () => (process.env.VUE_APP_PRODUCTION === "1" ? "720" : "1280"),
     },
     height: {
       type: String,
       require: false,
-      default: () => "720",
+      default: () => (process.env.VUE_APP_PRODUCTION === "1" ? "1280" : "720"),
     },
   },
   data() {
     return {
-      facingMode: !process.env.HAMCAM_PRODUCTION
-        ? "user"
-        : { exact: "environment" },
+      facingMode:
+        process.env.VUE_APP_PRODUCTION === "1"
+          ? { exact: "environment" }
+          : "user",
       video: {},
       canvas: {},
       photo: null,
@@ -62,7 +63,7 @@ export default {
         .drawImage(this.video, 0, 0, this.width, this.height);
       return {
         photo: this.canvas.toDataURL("image/jpeg"),
-        datetime: (new Date()).toISOString(),
+        datetime: new Date().toISOString(),
       };
     },
     onClickTakePhoto() {
