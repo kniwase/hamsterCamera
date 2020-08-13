@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 class Camera():
     def __init__(self):
+        self._loop = None
         self._ws_connected = False
         self._request_queue = None
         self._waiting_tasks = {}
@@ -35,14 +36,14 @@ class Camera():
 
     async def _main(self, websocket: WebSocket):
         try:
-            loop = asyncio.get_running_loop()
-            self._request_queue = asyncio.Queue(loop=loop)
+            self._loop = asyncio.get_running_loop()
+            self._request_queue = asyncio.Queue(loop=self._loop)
             self._ws_connected = True
             logging.info("Camera Connected")
             await asyncio.gather(
                 self._response_reciever(websocket),
                 self._request_sender(websocket),
-                loop=loop
+                loop=self._loop
             )
         except WebSocketDisconnect:
             logging.warning("Camera Disconnected")
@@ -91,12 +92,12 @@ class Camera():
         if not self._ws_connected:
             raise Exception("Camera Error: Not Connected")
         req_id = uuid.uuid4().hex
-        queue = asyncio.Queue()
+        queue = asyncio.Queue(loop=self._loop)
         self._waiting_tasks[req_id] = queue.put
         req = {"id": req_id, "method": method, "params": params}
         await self._request_queue.put(req)
         try:
-            res = await asyncio.wait_for(queue.get(), timeout=30.0)
+            res = await asyncio.wait_for(queue.get(), timeout=30.0, loop=self._loop)
         except asyncio.TimeoutError as err:
             logging.error("Camera Error: Request Timeout")
             raise err
