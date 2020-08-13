@@ -49,8 +49,8 @@ class Camera():
         except Exception:
             logging.error(traceback.format_exc())
         finally:
-            await websocket.close()
             self.__init__()
+            await websocket.close()
 
     async def _reject_connection(self, websocket: WebSocket):
         try:

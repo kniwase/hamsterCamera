@@ -163,3 +163,12 @@ export default {
   },
 };
 </script>
+
+<style>
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #000;
+    color: #aaa;
+  }
+}
+</style>
