@@ -66,7 +66,7 @@ export default {
       };
     },
     onClickTakePhoto() {
-      this.photo = this.getPhoto();
+      this.photo = this.getPhoto().photo;
     },
     onClickDeletePhoto() {
       this.photo = null;

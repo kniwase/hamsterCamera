@@ -7,7 +7,7 @@ router = APIRouter()
 @router.get("/getPhoto", )
 async def get_photo():
     photo = await camera.get_photo()
-    return Response(content=photo["img"], media_type="image/jpeg")
+    return Response(content=photo["img"].data, media_type="image/jpeg")
 
 
 @router.get("/getBatteryStatus", )

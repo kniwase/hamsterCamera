@@ -2,7 +2,7 @@ from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect
 import asyncio
 import msgpack
-import base64
+import datauri
 import uuid
 import logging
 import traceback
@@ -19,7 +19,7 @@ class Camera():
     async def get_photo(self):
         res = await self._execute_rpc_task("getPhoto")
         return {
-            "img": base64.b64decode(res["photo"].split(",", 1)[1]),
+            "img": datauri.DataURI(res["photo"]),
             "datetime": res["datetime"]
         }
 
@@ -35,10 +35,9 @@ class Camera():
 
     async def _main(self, websocket: WebSocket):
         try:
-            self._ws_connected = True
             loop = asyncio.get_running_loop()
             self._request_queue = asyncio.Queue(loop=loop)
-            self._waiting_tasks = {}
+            self._ws_connected = True
             logging.info("Camera Connected")
             await asyncio.gather(
                 self._response_reciever(websocket),
@@ -51,9 +50,7 @@ class Camera():
             logging.error(traceback.format_exc())
         finally:
             await websocket.close()
-            self._ws_connected = False
-            del self._request_queue
-            del self._waiting_tasks
+            self.__init__()
 
     async def _reject_connection(self, websocket: WebSocket):
         try:
