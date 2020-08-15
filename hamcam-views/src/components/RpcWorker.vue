@@ -14,7 +14,7 @@
 import { CameraWorker } from "./";
 import { ApiMixin } from "../mixins";
 import ReconnectingWebSocket from "reconnecting-websocket";
-const msgpack = require("msgpack-lite");
+const JsonRPC = require("simple-jsonrpc-js");
 import { useBattery } from "vue-use-web";
 
 export default {
@@ -25,10 +25,7 @@ export default {
       ws: { readyState: null },
       wsUrl: ApiMixin.apiUrl({ websocket: true }) + "/camera/ws",
       wsState: "未接続",
-      rpcMethods: {
-        getPhoto: this.getPhoto,
-        getBatteryStatus: this.getBatteryStatus,
-      },
+      jrpc: {},
     };
   },
   mounted() {
@@ -43,7 +40,15 @@ export default {
       if (this.ws && this.ws.readyState == null) {
         this.ws = new ReconnectingWebSocket(this.wsUrl);
         this.ws.onopen = () => {
-          this.ws.onmessage = this.recieveRequest;
+          this.jrpc = new JsonRPC();
+          this.jrpc.toStream = (msg) => {
+            this.ws.send(msg);
+          };
+          this.ws.onmessage = (event) => {
+            this.jrpc.messageHandler(event.data);
+          };
+          this.jrpc.on("getPhoto", [], this.getPhoto);
+          this.jrpc.on("getBatteryStatus", [], this.getBatteryStatus);
         };
       }
     },
@@ -52,70 +57,7 @@ export default {
         this.ws.close();
       }
       this.ws = { readyState: null };
-    },
-    sendResponse: function (res) {
-      this.ws.send(msgpack.encode(res));
-    },
-    recieveRequest: function (event) {
-      this.convMspackObj(event.data)
-        .then((req) => {
-          const ret_data = this.executeReqestedTask(req);
-          this.sendResponse(ret_data);
-        })
-        .catch(() => {
-          const ret_data = {
-            id: null,
-            error: { code: -32700, message: "Parse error" },
-          };
-          this.sendResponse(ret_data);
-        });
-    },
-    convMspackObj: function (mspackBlob) {
-      const fr = new FileReader();
-      fr.readAsArrayBuffer(mspackBlob);
-      return new Promise((resolve, reject) => {
-        fr.onload = () => {
-          resolve(msgpack.decode(new Uint8Array(fr.result)));
-        };
-        fr.onerror = () => {
-          reject(fr.error);
-        };
-      });
-    },
-    executeReqestedTask: function (req) {
-      if (req.method in this.rpcMethods) {
-        try {
-          let result;
-          if (req.params != null) {
-            result = this.rpcMethods[req.method](req.params);
-          } else {
-            result = this.rpcMethods[req.method]();
-          }
-          return {
-            id: req.id,
-            result: result,
-          };
-        } catch (err) {
-          const detail = {
-            name: err.name,
-            message: err.message,
-            stack: err.stack ? err.stack : null,
-          };
-          console.error(detail);
-          return {
-            id: req.id,
-            error: { code: -32603, message: "Internal error", detail: detail },
-          };
-        }
-      } else {
-        return {
-          id: req.id,
-          error: {
-            code: -32601,
-            message: "Method not found",
-          },
-        };
-      }
+      this.jrpc = {};
     },
     getPhoto: function () {
       const photo = this.$refs.camera.getPhoto();
