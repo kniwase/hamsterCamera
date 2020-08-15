@@ -1,13 +1,11 @@
 <template>
   <div>
-    <div v-show="false">
-      <video ref="video" :width="width" :height="height" autoplay muted playsinline></video>
-      <canvas ref="canvas" :width="width" :height="height" />
-    </div>
     <button v-on:click="onClickTakePhoto()">撮影</button>
     <button v-on:click="onClickDeletePhoto()">削除</button>
-    <br />
-    <img v-if="photo" v-bind:src="photo" width="250" />
+    <div v-if="photo">
+      <br />
+      <img v-bind:src="photo" width="250" />
+    </div>
   </div>
 </template>
 
@@ -18,49 +16,52 @@ export default {
     width: {
       type: String,
       require: false,
-      default: () => "1280",
+      default: () => "1280"
     },
     height: {
       type: String,
       require: false,
-      default: () => "720",
-    },
+      default: () => "720"
+    }
   },
   data() {
     return {
-      facingMode:
-        process.env.VUE_APP_PRODUCTION === "1"
-          ? { exact: "environment" }
-          : "user",
       video: {},
       canvas: {},
-      photo: null,
-    };
-  },
-  mounted() {
-    this.video = this.$refs.video;
-    navigator.mediaDevices
-      .getUserMedia({
+      getUserMediaArgs: {
+        audio: false,
         video: {
           width: this.width,
           height: this.height,
-          facingMode: this.facingMode,
-        },
-      })
-      .then((stream) => {
-        this.video.srcObject = stream;
-        this.video.play();
-      });
+          facingMode:
+            process.env.VUE_APP_PRODUCTION === "1" ? "environment" : "user"
+        }
+      },
+      photo: null
+    };
+  },
+  mounted() {
+    this.canvas = document.createElement("canvas");
+    this.canvas.setAttribute("width", this.width);
+    this.canvas.setAttribute("height", this.height);
+
+    this.video = document.createElement("video");
+    this.video.setAttribute("width", this.width);
+    this.video.setAttribute("height", this.height);
+    this.video.setAttribute("playsinline", true);
+    navigator.mediaDevices.getUserMedia(this.getUserMediaArgs).then(stream => {
+      this.video.srcObject = stream;
+    });
   },
   methods: {
     getPhoto() {
-      this.canvas = this.$refs.canvas;
+      this.video.play();
       this.canvas
         .getContext("2d")
         .drawImage(this.video, 0, 0, this.width, this.height);
       return {
         photo: this.canvas.toDataURL("image/jpeg"),
-        datetime: new Date().toISOString(),
+        datetime: new Date().toISOString()
       };
     },
     onClickTakePhoto() {
@@ -68,8 +69,8 @@ export default {
     },
     onClickDeletePhoto() {
       this.photo = null;
-    },
-  },
+    }
+  }
 };
 </script>
 
