@@ -27,8 +27,16 @@ export default {
   data() {
     return {
       video: {},
-      canvas: {},
-      getUserMediaArgs: {
+      photo: null
+    };
+  },
+  mounted() {
+    this.video = document.createElement("video");
+    this.video.setAttribute("width", this.width);
+    this.video.setAttribute("height", this.height);
+    this.video.setAttribute("playsinline", true);
+    navigator.mediaDevices
+      .getUserMedia({
         audio: false,
         video: {
           width: this.width,
@@ -36,31 +44,22 @@ export default {
           facingMode:
             process.env.VUE_APP_PRODUCTION === "1" ? "environment" : "user"
         }
-      },
-      photo: null
-    };
-  },
-  mounted() {
-    this.canvas = document.createElement("canvas");
-    this.canvas.setAttribute("width", this.width);
-    this.canvas.setAttribute("height", this.height);
-
-    this.video = document.createElement("video");
-    this.video.setAttribute("width", this.width);
-    this.video.setAttribute("height", this.height);
-    this.video.setAttribute("playsinline", true);
-    navigator.mediaDevices.getUserMedia(this.getUserMediaArgs).then(stream => {
-      this.video.srcObject = stream;
-    });
+      })
+      .then(stream => {
+        this.video.srcObject = stream;
+      });
   },
   methods: {
     getPhoto() {
+      let canvas = document.createElement("canvas");
+      canvas.setAttribute("width", this.width);
+      canvas.setAttribute("height", this.height);
       this.video.play();
-      this.canvas
+      canvas
         .getContext("2d")
         .drawImage(this.video, 0, 0, this.width, this.height);
       return {
-        photo: this.canvas.toDataURL("image/jpeg"),
+        photo: canvas.toDataURL("image/jpeg"),
         datetime: new Date().toISOString()
       };
     },
