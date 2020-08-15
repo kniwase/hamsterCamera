@@ -1,7 +1,6 @@
 from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect
 import asyncio
-import msgpack
 import datauri
 import uuid
 import logging
@@ -64,8 +63,7 @@ class Camera():
         while self._ws_connected:
             try:
                 req = await self._request_queue.get()
-                req_bytes = msgpack.packb(req)
-                await websocket.send_bytes(req_bytes)
+                await websocket.send_json(req)
             except WebSocketDisconnect:
                 raise
             except Exception:
@@ -75,8 +73,7 @@ class Camera():
     async def _response_reciever(self, websocket):
         while self._ws_connected:
             try:
-                res_bytes = await websocket.receive_bytes()
-                res_data = msgpack.unpackb(res_bytes)
+                res_data = await websocket.receive_json()
                 callback = self._waiting_tasks.get(res_data["id"])
                 if callback:
                     await callback(res_data)
@@ -88,13 +85,16 @@ class Camera():
                 logging.error("Camera Error: Recieving Response")
                 logging.error(traceback.format_exc())
 
-    async def _execute_rpc_task(self, method, params=None):
+    async def _execute_rpc_task(self, method, params=[]):
         if not self._ws_connected:
             raise Exception("Camera Error: Not Connected")
         req_id = uuid.uuid4().hex
         queue = asyncio.Queue(loop=self._loop)
         self._waiting_tasks[req_id] = queue.put
-        req = {"id": req_id, "method": method, "params": params}
+        req = {"method": method,
+               "params": params,
+               "id": req_id,
+               "jsonrpc": "2.0"}
         await self._request_queue.put(req)
         try:
             res = await asyncio.wait_for(queue.get(), timeout=30.0, loop=self._loop)
@@ -103,16 +103,7 @@ class Camera():
             raise err
         error = res.get("error")
         if error:
-            datail = error.get("detail")
-            if datail:
-                err_msg = "\n".join((
-                    datail.get("name", ""),
-                    datail.get("message", ""),
-                    datail.get("stack", "")
-                ))
-            else:
-                err_msg = f"{error['message']}"
-            raise Exception(f"Camera Error: {err_msg}")
+            raise Exception(f"Camera Error: {error['message']}")
         ret = res.get("result")
         if ret is None:
             raise Exception("Camera Error: Invalid Response")
