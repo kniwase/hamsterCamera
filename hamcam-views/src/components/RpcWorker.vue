@@ -1,13 +1,14 @@
 <template>
-  <b-container fluid="sm">
-    <b-row>接続先: {{wsUrl}}</b-row>
-    <b-row>状態: {{wsState}}</b-row>
-    <b-row>
-      <button color="info" v-on:click="getConnection()">接続</button>
-      <button color="info" v-on:click="closeConnection()">切断</button>
-    </b-row>
+  <div>
+    接続先: {{wsUrl}}
+    <br />
+    状態: {{wsState}}
+    <br />
+    <button v-on:click="getConnection()">接続</button>
+    <button v-on:click="closeConnection()">切断</button>
+    <br />
     <CameraWorker ref="camera" />
-  </b-container>
+  </div>
 </template>
 
 <script>

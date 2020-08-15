@@ -1,17 +1,14 @@
 <template>
-  <b-container fluid="sm">
-    <b-row v-show="false">
-      <video ref="video" id="video" :width="width" :height="height" autoplay muted playsinline></video>
-      <canvas ref="canvas" id="canvas" :width="width" :height="height" />
-    </b-row>
-    <b-row>
-      <button color="info" v-on:click="onClickTakePhoto()">撮影</button>
-      <button color="info" v-on:click="onClickDeletePhoto()">削除</button>
-    </b-row>
-    <b-row>
-      <b-img class="m1" fluid v-if="photo" v-bind:src="photo" width="250" />
-    </b-row>
-  </b-container>
+  <div>
+    <div v-show="false">
+      <video ref="video" :width="width" :height="height" autoplay muted playsinline></video>
+      <canvas ref="canvas" :width="width" :height="height" />
+    </div>
+    <button v-on:click="onClickTakePhoto()">撮影</button>
+    <button v-on:click="onClickDeletePhoto()">削除</button>
+    <br />
+    <img v-if="photo" v-bind:src="photo" width="250" />
+  </div>
 </template>
 
 <script>
