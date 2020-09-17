@@ -1,4 +1,4 @@
-from fastapi import (APIRouter, WebSocket, Response)
+from fastapi import APIRouter, WebSocket
 from ..modules.camera import camera
 
 router = APIRouter()
