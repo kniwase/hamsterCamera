@@ -1,6 +1,7 @@
 from fastapi import WebSocket
 from starlette.websockets import WebSocketDisconnect
 import asyncio
+from queue import (Queue, Empty)
 import datauri
 import uuid
 import logging
@@ -16,15 +17,12 @@ class Camera():
         self._request_queue = None
         self._waiting_tasks = {}
 
-    async def get_photo(self):
-        res = await self._execute_rpc_task("getPhoto")
+    def get_photo(self):
+        res = self._execute_rpc_task("getPhoto")
         return {
             "img": datauri.DataURI(res["photo"]),
             "datetime": res["datetime"]
         }
-
-    async def get_battery_status(self):
-        return await self._execute_rpc_task("getBatteryStatus")
 
     async def create_connection(self, websocket: WebSocket):
         await websocket.accept()
@@ -36,7 +34,7 @@ class Camera():
     async def _main(self, websocket: WebSocket):
         try:
             self._loop = asyncio.get_running_loop()
-            self._request_queue = asyncio.Queue(loop=self._loop)
+            self._request_queue = Queue()
             self._ws_connected = True
             logging.info("Camera Connected")
             await asyncio.gather(
@@ -62,7 +60,8 @@ class Camera():
     async def _request_sender(self, websocket):
         while self._ws_connected:
             try:
-                req = await self._request_queue.get()
+                req = await self._loop.run_in_executor(
+                    None, self._request_queue.get)
                 await websocket.send_json(req)
             except WebSocketDisconnect:
                 raise
@@ -74,9 +73,10 @@ class Camera():
         while self._ws_connected:
             try:
                 res_data = await websocket.receive_json()
-                callback = self._waiting_tasks.get(res_data["id"])
+                callback = await self._loop.run_in_executor(
+                    None, self._waiting_tasks.get, res_data["id"])
                 if callback:
-                    await callback(res_data)
+                    await self._loop.run_in_executor(None, callback, res_data)
                 else:
                     logging.warning("Camera Warning: ReqID not found")
             except WebSocketDisconnect:
@@ -85,22 +85,24 @@ class Camera():
                 logging.error("Camera Error: Recieving Response")
                 logging.error(traceback.format_exc())
 
-    async def _execute_rpc_task(self, method, params=[]):
+    def _execute_rpc_task(self, method, params=[]):
         if not self._ws_connected:
             raise Exception("Camera Error: Not Connected")
         req_id = uuid.uuid4().hex
-        queue = asyncio.Queue(loop=self._loop)
+        queue = Queue()
         self._waiting_tasks[req_id] = queue.put
         req = {"method": method,
                "params": params,
                "id": req_id,
                "jsonrpc": "2.0"}
-        await self._request_queue.put(req)
+        self._request_queue.put(req)
         try:
-            res = await asyncio.wait_for(queue.get(), timeout=30.0, loop=self._loop)
-        except asyncio.TimeoutError as err:
+            res = queue.get(timeout=30)
+        except Empty as err:
             logging.error("Camera Error: Request Timeout")
             raise err
+        finally:
+            self._waiting_tasks.pop(req_id)
         error = res.get("error")
         if error:
             raise Exception(f"Camera Error: {error['message']}")

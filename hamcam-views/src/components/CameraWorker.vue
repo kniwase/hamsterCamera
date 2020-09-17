@@ -1,17 +1,12 @@
 <template>
-  <b-container fluid="sm">
-    <b-row v-show="false">
-      <video ref="video" id="video" :width="width" :height="height" autoplay muted playsinline></video>
-      <canvas ref="canvas" id="canvas" :width="width" :height="height" />
-    </b-row>
-    <b-row>
-      <button color="info" v-on:click="onClickTakePhoto()">撮影</button>
-      <button color="info" v-on:click="onClickDeletePhoto()">削除</button>
-    </b-row>
-    <b-row>
-      <b-img class="m1" fluid v-if="photo" v-bind:src="photo" width="250" />
-    </b-row>
-  </b-container>
+  <div>
+    <button v-on:click="onClickTakePhoto()">撮影</button>
+    <button v-on:click="onClickDeletePhoto()">削除</button>
+    <div v-if="photo">
+      <br />
+      <img v-bind:src="photo" width="250" />
+    </div>
+  </div>
 </template>
 
 <script>
@@ -21,49 +16,51 @@ export default {
     width: {
       type: String,
       require: false,
-      default: () => "1280",
+      default: () => "1280"
     },
     height: {
       type: String,
       require: false,
-      default: () => "720",
-    },
+      default: () => "720"
+    }
   },
   data() {
     return {
-      facingMode:
-        process.env.VUE_APP_PRODUCTION === "1"
-          ? { exact: "environment" }
-          : "user",
       video: {},
-      canvas: {},
-      photo: null,
+      photo: null
     };
   },
   mounted() {
-    this.video = this.$refs.video;
+    this.video = document.createElement("video");
+    this.video.setAttribute("width", this.width);
+    this.video.setAttribute("height", this.height);
+    this.video.setAttribute("playsinline", true);
     navigator.mediaDevices
       .getUserMedia({
+        audio: false,
         video: {
           width: this.width,
           height: this.height,
-          facingMode: this.facingMode,
-        },
+          facingMode:
+            process.env.VUE_APP_PRODUCTION === "1" ? "environment" : "user"
+        }
       })
-      .then((stream) => {
+      .then(stream => {
         this.video.srcObject = stream;
-        this.video.play();
       });
   },
   methods: {
     getPhoto() {
-      this.canvas = this.$refs.canvas;
-      this.canvas
+      let canvas = document.createElement("canvas");
+      canvas.setAttribute("width", this.width);
+      canvas.setAttribute("height", this.height);
+      this.video.play();
+      canvas
         .getContext("2d")
         .drawImage(this.video, 0, 0, this.width, this.height);
       return {
-        photo: this.canvas.toDataURL("image/jpeg"),
-        datetime: new Date().toISOString(),
+        photo: canvas.toDataURL("image/jpeg"),
+        datetime: new Date().toISOString()
       };
     },
     onClickTakePhoto() {
@@ -71,8 +68,8 @@ export default {
     },
     onClickDeletePhoto() {
       this.photo = null;
-    },
-  },
+    }
+  }
 };
 </script>
 
