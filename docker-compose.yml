@@ -13,10 +13,12 @@ services:
       - "80"
     environment:
       - TZ=Asia/Tokyo
+      - API_DOMAIN=$API_DOMAIN
       - CHANNEL_ACCESS_TOKEN=$CHANNEL_ACCESS_TOKEN
       - CHANNEL_SECRET=$CHANNEL_SECRET
     volumes:
       - ./hamcam-apps:/app
+      - ./images:/static
     command: python /app/manage.py runserver
   
   hamcam_views:
