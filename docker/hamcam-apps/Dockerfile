@@ -1,5 +1,5 @@
 # Pythonの環境セットアップ
-FROM python:3.7-slim-buster
+FROM python:3.8-buster
 
 ARG PRODUCTION
 ENV HAMCAM_PRODUCTION $PRODUCTION
